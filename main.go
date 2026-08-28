@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"math"
+	"github.com/fatih/color"
 )
 
 var Name string
@@ -14,13 +15,15 @@ var Max int
 
 
 func init() {
-	fmt.Println("Добро поаловать в игру УГАДАЙКА 🤓")
+	fmt.Println("\x1b[32mДобро поаловать\x1b[0m в игру \x1b[33mУГАДАЙКА\x1b[0m 🤓")
 		
 	GetName()
 }
 
 func main() {
 	
+	defer Bye()
+
 	for {
 
 		GetLevel()
@@ -47,9 +50,9 @@ func GetName() {
 func GetLevel() {
 	
 	fmt.Println("В нашей игре есть три уровня:")
-	fmt.Println("1. Easy: число от 1 до 50 и  утебя будет 15 попыток")
-	fmt.Println("2. Medium: число от 1 до 100 и у тебя будет 10 попыток")
-	fmt.Println("3. Hard: чесло от 1 до 200 и у тебя будет 5 попыток")
+	color.RGB(154, 205, 50).Println("1. Easy: число от 1 до 50 и  утебя будет 15 попыток")
+	color.RGB(240, 230, 140).Println("2. Medium: число от 1 до 100 и у тебя будет 10 попыток")
+	color.RGB(139, 0, 0).Println("3. Hard: чесло от 1 до 200 и у тебя будет 5 попыток")
 	
 	fmt.Print("Какой уровень выберешь ты? (введи число 1/2/3) ")
 	
@@ -94,7 +97,7 @@ func StartGame() {
 		
 		attempt_counter++
 
-		fmt.Printf("Попытка №%d. Введите число: ", attempt_counter)
+		fmt.Printf("Попытка №\x1b[31m%d\x1b[0m. Введите число: ", attempt_counter)
 		fmt.Scan(&user_answer)
 
 		all_user_answers = append(all_user_answers, user_answer)
@@ -102,20 +105,23 @@ func StartGame() {
 		right = CheckAnswer(user_answer)
 
 		if right {
-			fmt.Println("Ты победил 🥳")
+			color.Green("Ты победил 🥳")
 			fmt.Printf("Количество попыток: %d.", attempt_counter)
 			fmt.Println()
 			fmt.Printf("Твои ответы: %v", all_user_answers)
+			fmt.Println()
+			fmt.Println()
 			break
 		}
 	}
 
 	if !right{
-		fmt.Printf("%s , попытки закончились", Name)
+		fmt.Printf("%s , попытки \x1b[31mзакончились\x1b[0m", Name)
 		fmt.Println()
 		fmt.Printf("Вот твои ответы: %v", all_user_answers)
 		fmt.Println()
 		fmt.Printf("Правильный ответ: %d", Num)
+		fmt.Println()
 	}
 }
 
@@ -125,20 +131,20 @@ func CheckAnswer(answer int) bool {
 
 	switch {
 	case answer == Num:
-		fmt.Println("Совершенно верно!!!😺")
+		fmt.Println("Совершенно \x1b[32mверно\x1b[0m!!!😺")
 	case int(math.Abs(difference)) <= 5:
-		fmt.Println("Горячо 🥵")
+		color.Red("Горячо 🥵")
 	case int(math.Abs(difference)) <= 15:
-		fmt.Println("Тепло 🤭")
+		color.Yellow("Тепло 🤭")
 	default:
-		fmt.Println("Хлолдно 🥶")
+		color.Blue("Хлолдно 🥶")
 	}
 
 	if answer > Num {
-		fmt.Println("Загаданное число меньше 👇")
+		fmt.Println("Загаданное число \x1b[4mменьше\x1b[0m 👇")
 		fmt.Println()
 	} else if answer < Num {
-		fmt.Println("Загаданное число больше 👆")
+		fmt.Println("Загаданное число \x1b[1m\x1b[4mбольше\x1b[0m 👆")
 		fmt.Println()
 	}
 
@@ -147,10 +153,15 @@ func CheckAnswer(answer int) bool {
 
 func Continue() bool {
 	
-	fmt.Printf("%s, хочешь поиграть ещё? (да/нет)", Name)
+	fmt.Printf("%s, хочешь поиграть ещё? (да/нет)  ", Name)
 	var contin string
 	fmt.Scan(&contin)
-	
+	if contin != "да"{return false}
+
 	return true
 }
 	
+func Bye(){
+	fmt.Println("Хорошо!")
+	fmt.Println("Пока 🤧")
+}
