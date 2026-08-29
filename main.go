@@ -8,6 +8,10 @@ import (
 	"time"
 	"encoding/json"
 	"os"
+	"regexp"
+	"strconv"
+	"bufio"
+	"strings"
 )
 
 var Name string
@@ -55,9 +59,14 @@ func GetName() {
 	
 	fmt.Println("Как я могу к тебе обращаться?")
 	fmt.Print("Введите имя: ")
+	name := ""
+	for {
+		fmt.Scan(&name)
+		check, _ := regexp.MatchString(`^[\pL\s]+$`, name)
+		if check {break}
+	}
 	
-	fmt.Scan(&Name)
-	
+	Name = name
 	fmt.Println()
 }
 
@@ -70,8 +79,13 @@ func GetLevel() {
 	
 	fmt.Print("Какой уровень выберешь ты? (введи число 1/2/3) ")
 	
-	fmt.Scan(&Level)
-
+	for {
+		_, err := fmt.Scan(&Level)
+		fmt.Println()
+		if err != nil || 3 < Level || Level < 1 {
+			fmt.Print("Ошибка!!! Ответ должен быть только 1 или 2 или 3. Введите ещё раз: ")
+		} else {break}
+	}
 }
 
 func CreateNum() {
@@ -85,7 +99,6 @@ func CreateNum() {
 
 	Num = rand.Intn(Max)
 
-	fmt.Println()
 	fmt.Println("Число загадано!")
 	fmt.Println("Приступим")
 
@@ -112,8 +125,8 @@ func StartGame() {
 		Attempt_counter++
 
 		fmt.Printf("Попытка №\x1b[31m%d\x1b[0m. Введите число: ", Attempt_counter)
-		fmt.Scan(&user_answer)
 
+		user_answer = GetNumAnswer()
 		all_user_answers = append(all_user_answers, user_answer)
 
 		right = CheckAnswer(user_answer)
@@ -171,10 +184,17 @@ func Continue() bool {
 	
 	fmt.Printf("%s, хочешь поиграть ещё? (да/нет)  ", Name)
 	var contin string
-	fmt.Scan(&contin)
-	if contin != "да"{return false}
+	_, err := fmt.Scan(&contin)
+	for err != nil || (!(contin == "да" || contin == "Да" || contin == "ДА") && !(contin == "Нет" || contin == "нет" || contin == "НЕТ")) {
+		fmt.Print("Введеный ответ некорректен. Введите корректный ответ (да/нет):  ")
+		_, err = fmt.Scan(&contin)
+	}
 
-	return true
+	fmt.Println()
+
+	if contin == "да" || contin == "Да" || contin == "ДА" {return true}
+
+	return false
 }
 	
 func Bye(){
@@ -204,3 +224,20 @@ func ToJason() {
 	}
 }
 
+func GetNumAnswer() int {
+	
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for {
+		scanner.Scan()
+		input := strings.TrimSpace(scanner.Text())
+
+		var err error
+		user_answer, err := strconv.Atoi(input)
+
+		if err == nil {return user_answer}
+
+		fmt.Print("Ошибка! Введено не число. Введите число:  ")
+		}
+	
+}
