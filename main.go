@@ -5,6 +5,9 @@ import (
 	"math/rand"
 	"math"
 	"github.com/fatih/color"
+	"time"
+	"encoding/json"
+	"os"
 )
 
 var Name string
@@ -12,7 +15,16 @@ var Level int
 var Num int
 var Limit int
 var Max int
+var Res string
+var Attempt_counter int
 
+type Result struct {
+	Name string
+	Data string
+	Res string
+	Level string
+	Count int
+}
 
 func init() {
 	fmt.Println("\x1b[32mДобро поаловать\x1b[0m в игру \x1b[33mУГАДАЙКА\x1b[0m 🤓")
@@ -31,6 +43,8 @@ func main() {
 		CreateNum()
 	
 		StartGame()
+
+		ToJason()
 
 		if !Continue() {break}
 		
@@ -90,14 +104,14 @@ func StartGame() {
 	var all_user_answers []int
 	var user_answer int
 	var right bool
-	attempt_counter := 0
+	Attempt_counter = 0
 	
 	
-	for attempt_counter < Limit {
+	for Attempt_counter < Limit {
 		
-		attempt_counter++
+		Attempt_counter++
 
-		fmt.Printf("Попытка №\x1b[31m%d\x1b[0m. Введите число: ", attempt_counter)
+		fmt.Printf("Попытка №\x1b[31m%d\x1b[0m. Введите число: ", Attempt_counter)
 		fmt.Scan(&user_answer)
 
 		all_user_answers = append(all_user_answers, user_answer)
@@ -105,8 +119,9 @@ func StartGame() {
 		right = CheckAnswer(user_answer)
 
 		if right {
+			Res = "Выиграл"
 			color.Green("Ты победил 🥳")
-			fmt.Printf("Количество попыток: %d.", attempt_counter)
+			fmt.Printf("Количество попыток: %d.", Attempt_counter)
 			fmt.Println()
 			fmt.Printf("Твои ответы: %v", all_user_answers)
 			fmt.Println()
@@ -116,6 +131,7 @@ func StartGame() {
 	}
 
 	if !right{
+		Res = "Проиграл"
 		fmt.Printf("%s , попытки \x1b[31mзакончились\x1b[0m", Name)
 		fmt.Println()
 		fmt.Printf("Вот твои ответы: %v", all_user_answers)
@@ -165,3 +181,26 @@ func Bye(){
 	fmt.Println("Хорошо!")
 	fmt.Println("Пока 🤧")
 }
+
+func ToJason() {
+	data := time.Now().Format("02.01.2006 15:04")
+
+	var level string
+	switch Level{
+	case 1: level = "Легкий"
+	case 2: level = "Следний"
+	case 3: level = "Сложный"
+	}
+
+	out := Result{Name, data, Res, level, Attempt_counter}
+
+	file, err := os.OpenFile("resalt.jsonl", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+
+	if err == nil {
+		defer file.Close()
+
+		encoder := json.NewEncoder(file)
+		encoder.Encode(out)
+	}
+}
+
