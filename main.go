@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"bufio"
 	"strings"
+	"log"
 )
 
 var Name string
@@ -151,35 +152,45 @@ func StartGame() {
 		fmt.Println()
 		fmt.Printf("Вот твои ответы: %v", all_user_answers)
 		fmt.Println()
-		fmt.Printf("Правильный ответ: %d", Num)
+		fmt.Printf("Правильный ответ: %d\n", Num)
 		fmt.Println()
 	}
 }
 
 func CheckAnswer(answer int) bool {
 
-	difference  := float64(answer - Num)
+	difference  := answer - Num
 
+	CheckColorMatch(difference)
+
+	HaveClueDif(difference)
+
+	return answer == Num
+}
+
+func CheckColorMatch(difference int) {
+	
 	switch {
-	case answer == Num:
+	case difference == 0:
 		fmt.Println("Совершенно \x1b[32mверно\x1b[0m!!!😺")
-	case int(math.Abs(difference)) <= 5:
+	case int(math.Abs(float64(difference))) <= 5:
 		color.Red("Горячо 🥵")
-	case int(math.Abs(difference)) <= 15:
+	case int(math.Abs(float64(difference))) <= 15:
 		color.Yellow("Тепло 🤭")
 	default:
 		color.Blue("Хлолдно 🥶")
 	}
+}
 
-	if answer > Num {
+func HaveClueDif(difference int) {
+
+	if difference > 0 {
 		fmt.Println("Загаданное число \x1b[4mменьше\x1b[0m 👇")
 		fmt.Println()
-	} else if answer < Num {
+	} else if difference < 0 {
 		fmt.Println("Загаданное число \x1b[1m\x1b[4mбольше\x1b[0m 👆")
 		fmt.Println()
 	}
-
-	return answer == Num
 }
 
 func Continue() bool {
@@ -223,6 +234,7 @@ func ToJason() error {
 	defer file.Close()
 
 	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "    ")
 	if err := encoder.Encode(out); err != nil {
 		return fmt.Errorf("не удалось записать данные в JSON: %w", err)
 	}
@@ -249,5 +261,8 @@ func GetNumAnswer() int {
 
 		fmt.Print("Ошибка! Введено не число. Введите число:  ")
 	}
+	
+	if err := consoleScanner; err != nil {log.Printf("Ошибка при чтении из консоли: %v", err)}
+
 	return 0
 }
