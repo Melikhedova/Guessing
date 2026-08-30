@@ -21,8 +21,8 @@
 ### 1. Клонирование репозитория
 Склонируйте проект к себе на локальный компьютер:
 ```bash
-git clone https://github.com
-cd название-репозитория
+git clone https://github.com/Melikhedova/Guessing.git
+cd Guessing
 ```
 
 ### 2. Инициализация модуля (если проект создается с нуля)

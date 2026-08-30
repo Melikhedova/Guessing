@@ -98,7 +98,7 @@ func CreateNum() {
 
 	Max = level_limit[Level]
 
-	Num = rand.Intn(Max)
+	Num = rand.Intn(Max+1)
 
 	fmt.Println("Число загадано!")
 	fmt.Println("Приступим")
@@ -127,7 +127,7 @@ func StartGame() {
 
 		if all_user_answers != nil {fmt.Printf("Твои ответы: %v\n", all_user_answers)}
 
-		fmt.Printf("Попытка №\x1b[31m%d\x1b[0m. Введите число: ", Attempt_counter)
+		fmt.Printf("Попытка №\x1b[33m\x1b[1m%d\x1b[0m. Введите число: ", Attempt_counter)
 
 		user_answer = GetNumAnswer()
 		all_user_answers = append(all_user_answers, user_answer)
@@ -139,7 +139,6 @@ func StartGame() {
 			color.Green("Ты победил 🥳")
 			fmt.Printf("Количество попыток: %d.", Attempt_counter)
 			fmt.Println()
-			//fmt.Printf("Твои ответы: %v", all_user_answers)
 			fmt.Println()
 			fmt.Println()
 			break
@@ -205,43 +204,33 @@ func Bye(){
 	fmt.Println("Пока 🤧")
 }
 
-func ToJason() {
+func ToJason() error {
 	data := time.Now().Format("02.01.2006 15:04")
 
 	var level string
 	switch Level{
 	case 1: level = "Легкий"
-	case 2: level = "Следний"
+	case 2: level = "Средний"
 	case 3: level = "Сложный"
 	}
 
 	out := Result{Name, data, Res, level, Attempt_counter}
 
-	file, err := os.OpenFile("resalt.jsonl", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-
-	if err == nil {
-		defer file.Close()
-
-		encoder := json.NewEncoder(file)
-		encoder.Encode(out)
+	file, err := os.OpenFile("results.json", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return fmt.Errorf("не удалось открыть файл: %w", err)
 	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	if err := encoder.Encode(out); err != nil {
+		return fmt.Errorf("не удалось записать данные в JSON: %w", err)
+	}
+
+	return nil
 }
 
 func GetNumAnswer() int {
-	
-	// scanner := bufio.NewScanner(os.Stdin)
-
-	// for {
-	// 	scanner.Scan()
-	// 	input := strings.TrimSpace(scanner.Text())
-
-	// 	var err error
-	// 	user_answer, err := strconv.Atoi(input)
-
-	// 	if err == nil {return user_answer}
-
-	// 	fmt.Print("Ошибка! Введено не число. Введите число:  ")
-	// 	}
 	
 	for {
 		if !consoleScanner.Scan() {
